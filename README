@@ -112,7 +112,23 @@ It is possible that not all upstream repos are visible since local repos might
 be outdated. You can fetch all the changes with:
    #> arcker update
 
+-- EXECUTING TASKS --
+   #> arcker do <task_name>
+   #> arcker do -e <task_name>    #Edit configuration for the run.
+
+-- PERSISTENCY OF TASKS --
+
+Persistent tasks stop being executed further if they were previous successfully
+executed, I.E returned 0.
+You can force the task to be executed again by trashing it:
+   #> arcker trash <task_name>
+
+Also when the configuration is changed, it is possible that the task will be
+trashed in the following conditions:
+ 1- A variable used in the task is changed.
+ 2- A dependent task is trashed because of (1-).
+
 ----- GOOD LUCK ----
 
 Code is a good reference to understand how it works. BTW, code is self
-commented. :D
+explanatory. :D
