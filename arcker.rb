@@ -658,6 +658,8 @@ arcker = ARCKER.new(LocalConfig)
 opt = OptionParser.new
 
 opt.default do
+  puts "THIS IS VERY OUTDATED ... FELL FREE TO UPDATE IT AS YOU LEARN. :D"
+  puts ""
   puts "Commands:"
   puts "  init <type> - initialize repo tree"
   puts "  update - Update global ARCKER configs"

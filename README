@@ -1,0 +1,118 @@
+-- SETUP ARCKER --.
+
+1. Create an alias to this script.
+    #> alias arcker=ruby `pwd`/arcker.rb
+
+2. Make sure EDITOR env var is set to your preferable editor.
+   Vim is used as default if not set.
+
+3. Setup arcker ...
+    #> arcker setup
+
+  This will git clone --bare the arcker_core repo to ${HOME}/.arcker
+
+ARCKER is setup on your system.
+
+
+-- CREATE A NEW REPO --
+
+A repo is a "placeholder" for unifying sources, scripts and configurations.
+To create it you should stand in an empty directory and execute.
+
+#> arcker plumber repo create <name>
+
+This will create a .arcker directory with a single config.kson file inside.
+
+-- ADD SOURCES TO REPO --
+
+Execute:
+   #> arcker plumber source add <name> <git_repo>
+
+This will clone git_repo as bare to the directory
+${HOME}/.arcker_lib/<repo_name>/<name>.
+Simultaneously will also create a worktree in "`pwd`/sources/<name>"
+with branch named base on full path location of this source directory.
+
+Sources can be listed with
+   #> arcker list sources
+
+Sources can also be removed with:
+   #> arcker plumber source remove <name>
+The original bare repository if left untouched.
+
+-- CREATE NEW TASK --
+
+Execute:
+   # arcker plumber task create <name>
+
+This will open an editor with a default empty script template.
+Please notice the commented part of the file, which allows to define task
+dependencies, configuration variables required and specify if the task is
+persistent or not.
+
+Persistent tasks should return 0 in case the task execution is successful
+and does not require to be executed in the next run.
+
+You should edit the script using sh syntax to perform the required behaviour.
+
+You can also list, edit and remove tasks:
+   #> list tasks
+   #> plumber task remove <name>
+   #> plumber task edit <name>
+
+-- CREATE CONFIG --
+
+Execute:
+   #> arcker config
+
+This command will open an editor with an empty configuration file.
+This file when executing a task will simply be pre-pended to the task code
+being execute. This provides a separated way to define configuration to the
+tasks.
+
+In other words this is simply a script that is always executed before the
+task code.
+Any sh defined variables in this file will be accessible in task code.
+
+Any non defined required tasks by all the tasks are prepended to the editor,
+such that one can easily realise it and define.
+
+Please notice that like any script the content of config can also contain sh
+like comments in lines prefixed with #.
+
+Other config related commands:
+
+   #> arcker list known configs      -- List configs
+   #> arcker config publish <name>   -- Save config with a name
+   #> arcker config remove <name>    -- Remove named config
+   #> arcker reset <name>            -- Reset current config to <name> config.
+    Please notice that any changes with config will be lost. Save config first.
+
+-- SHARE REPO UPSTREAM --
+
+   #> arcker plumber push
+
+This will push any of the local repo changes upstream, I.E sources, tasks and
+configs.
+The current config will become the default one upstream as well.
+
+As this command is just a git commit and push, it will require you to comment
+the commit.
+
+-- GRAB REPO FROM UPSTREAM --
+
+You should create a directory you pretent the repo to be set in and execute the
+following command inside the directory.
+   #> arcker init <name>
+
+The list of available repos can be recovered with:
+   #> arcker list known repos
+
+It is possible that not all upstream repos are visible since local repos might
+be outdated. You can fetch all the changes with:
+   #> arcker update
+
+----- GOOD LUCK ----
+
+Code is a good reference to understand how it works. BTW, code is self
+commented. :D
