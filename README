@@ -1,4 +1,4 @@
--- SETUP ARCKER --.
+-- SETUP ARCKER (ARC maKER) --.
 
 1. Create an alias to this script.
     #> alias arcker=ruby `pwd`/arcker.rb
@@ -56,9 +56,9 @@ and does not require to be executed in the next run.
 You should edit the script using sh syntax to perform the required behaviour.
 
 You can also list, edit and remove tasks:
-   #> list tasks
-   #> plumber task remove <name>
-   #> plumber task edit <name>
+   #> arcker list tasks
+   #> arcker plumber task remove <name>
+   #> arcker plumber task edit <name>
 
 -- CREATE CONFIG --
 
