@@ -1,7 +1,7 @@
 -- SETUP ARCKER (ARC maKER) --.
 
 1. Create an alias to this script.
-    #> alias arcker=ruby `pwd`/arcker.rb
+    #> alias arcker="ruby `pwd`/arcker.rb"
 
 2. Make sure EDITOR env var is set to your preferable editor.
    Vim is used as default if not set.
