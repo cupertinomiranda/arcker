@@ -114,6 +114,9 @@ module Sys
     puts msg
     exit -1
   end
+  def debug(msg, level=0)
+    puts msg
+  end
 
   def edit_content(str, extension="sh")
     tmp_file = "/tmp/arcker_content.#{extension}"
@@ -434,13 +437,17 @@ STR_END
     ret = system_cmd("chmod +x .run.sh && chmod +x .current_task.sh && ./.run.sh && rm -f .current_task.sh .run.sh")
     @dirty = false if(ret == true && persistent?)
     already_executed.push(@name)
-    error("Task #{name} failed to execute.") if (ret == false)
+    raise("Task #{name} failed to execute.") if (ret == false)
     return already_executed
   end
   def run_task(edit_config = false)
     config = Config.current(true).content
     config = edit_content(config) if(edit_config == true)
-    _run_task(config)
+    begin
+      _run_task(config)
+    rescue StandardError => e
+      debug(e)
+    end
     ARCKER.instance.save
   end
 end
@@ -570,7 +577,7 @@ class ARCKER
 
       @@instance = self
     else
-      puts "Directory is not ARCKER initialized."
+      error("Directory is not ARCKER initialized.")
       return nil
     end
   end
