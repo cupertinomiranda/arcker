@@ -38,7 +38,7 @@ Sources can be listed with
 
 Sources can also be removed with:
    #> arcker plumber source remove <name>
-The original bare repository if left untouched.
+The original bare repository is left untouched.
 
 -- CREATE NEW TASK --
 
