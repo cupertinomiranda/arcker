@@ -434,6 +434,7 @@ STR_END
     ret = system_cmd("chmod +x .run.sh && chmod +x .current_task.sh && ./.run.sh && rm -f .current_task.sh .run.sh")
     @dirty = false if(ret == true && persistent?)
     already_executed.push(@name)
+    error("Task #{name} failed to execute.") if (ret == false)
     return already_executed
   end
   def run_task(edit_config = false)
