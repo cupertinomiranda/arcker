@@ -409,7 +409,7 @@ STR_END
   def trash(save = true, already_trashed = [])
     return already_trashed if already_trashed.index(@name) != nil
 
-    @dirty = true if (persistent?)
+    @dirty = true
     already_trashed.push(@name)
     dependents.each do |task|
       already_trashed = task.trash(false, already_trashed)
