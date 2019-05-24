@@ -553,7 +553,7 @@ class Config
     @old_config = self.clone
     ndv = non_defined_vars
     content = @content
-    content += "\n# Mising variables:\n#{ndv.map { |v| "#{v}=" }.join("\n") }" if ndv.length > 0
+    content += "\n# Mising variables:\n#{ndv.map { |v| "##{v}=" }.join("\n") }" if ndv.length > 0
     new_content = edit_content(content)
     if(content != new_content)
       @content = new_content
