@@ -437,7 +437,7 @@ STR_END
     return already_executed
   end
   def run_task(edit_config = false)
-    config = Config.current.content
+    config = Config.current(true).content
     config = edit_content(config) if(edit_config == true)
     _run_task(config)
     ARCKER.instance.save
@@ -456,8 +456,8 @@ class Config
   def self.set_current(config_content)
     @@current = self.new("_", config_content)
   end
-  def self.current
-    error("You should first create a config.") if @@current.nil?
+  def self.current(fail = false)
+    error("You should first create a config.") if (@@current.nil? && fail)
     @@current
   end
 

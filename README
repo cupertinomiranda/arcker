@@ -21,7 +21,7 @@ To create it you should stand in an empty directory and execute.
 
 #> arcker plumber repo create <name>
 
-This will create a .arcker directory with a single config.kson file inside.
+This will create a .arcker directory with a single config.json file inside.
 
 -- ADD SOURCES TO REPO --
 
