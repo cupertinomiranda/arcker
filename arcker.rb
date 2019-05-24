@@ -658,7 +658,7 @@ arcker = ARCKER.new(LocalConfig)
 opt = OptionParser.new
 
 opt.default do
-  puts "THIS IS VERY OUTDATED ... FELL FREE TO UPDATE IT AS YOU LEARN. :D"
+  puts "THIS IS VERY OUTDATED ... FEEL FREE TO UPDATE IT AS YOU LEARN. :D"
   puts ""
   puts "Commands:"
   puts "  init <type> - initialize repo tree"
@@ -698,7 +698,7 @@ opt.rule("do {-e} <name>")	  { |opts| Task.get(opts["name"]).run_task(opts["-e"]
 opt.rule("trash <name>")	  { |opts| Task.get(opts["name"]).trash }
 
 opt.rule("config")			{ |opts| Config.edit }
-opt.rule("config publish <name>")	{ |opts| Config.add(opts["name"], Config.current.content) }
+opt.rule("config publish <name>")	{ |opts| Config.add(opts["name"], { content: Config.current.content }) }
 opt.rule("config remove <name>")	{ |opts| Config.remove(opts["name"]) }
 opt.rule("config reset <name>")		{ |opts| Config.reset_to(opts["name"]) }
 
@@ -706,7 +706,7 @@ opt.rule("plumber repo create <name>")	{ |opts| ARCKER.create_repo(opts["name"])
 opt.rule("plumber repo create <name> <repo_to_copy>")	{ |opts| ARCKER.create_repo(opts["name"], opts["repo_to_copy"]) }
 opt.rule("plumber repo remove <name>")	{ |opts| ARCKER.repo_remove(opts["name"]) }
 
-opt.rule("plumber source add <name> <gitrepo>") { |opts| Source.add(opts["name"], opts["gitrepo"]) }
+opt.rule("plumber source add <name> <gitrepo>") { |opts| Source.add(opts["name"], { "repo" => opts["gitrepo"] }) }
 opt.rule("plumber source remove <name>")	{ |opts| Source.remove(opts["name"]) }
 
 opt.rule("plumber task create <name>")	{ |opts| Task.add(opts["name"], {}) }
