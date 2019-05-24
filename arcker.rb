@@ -442,6 +442,8 @@ STR_END
   end
   def run_task(edit_config = false)
     config = Config.current(true).content
+    ndv = Config.current.non_defined_vars
+    error("Cannot execute task #{name}. Variables #{ndv.join(", ")} are not defined.") if(ndv.length > 0)
     config = edit_content(config) if(edit_config == true)
     begin
       _run_task(config)
@@ -608,8 +610,6 @@ class ARCKER
   def repo_name
     "repo_#{@config["name"]}"
   end
-
-
 
 # REPO related code
 
