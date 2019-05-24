@@ -692,7 +692,7 @@ opt.rule("update")	  { |opts| ARCKER.update }
 
 opt.rule("list known repos")	  { |opts| puts "Known repos: #{ARCKER.list_repos.join(" ")}" }
 opt.rule("list tasks")		  { |opts| puts "Available tasks: #{Task.list.join(", ")} " }
-opt.rule("list sources")  	  { |opts| puts JSON.pretty_generate(Source.elements) }
+opt.rule("list sources")  	  { |opts| puts JSON.pretty_generate(Source.to_h) }
 opt.rule("list known configs")	  { |opts| puts "Available configs: #{Config.list.join(", ")} " }
 
 opt.rule("get_sources")		  { |opts| Source.get_sources }
