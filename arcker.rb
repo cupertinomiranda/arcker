@@ -434,6 +434,7 @@ STR_END
 
     File.write(".run.sh", "#{config}\n. ./.current_task.sh")
     File.write(".current_task.sh", @code)
+    debug("Executing task #{name}.")
     ret = system_cmd("chmod +x .run.sh && chmod +x .current_task.sh && ./.run.sh && rm -f .current_task.sh .run.sh")
     @dirty = false if(ret == true && persistent?)
     already_executed.push(@name)
@@ -579,7 +580,7 @@ class ARCKER
 
       @@instance = self
     else
-      error("Directory is not ARCKER initialized.")
+      puts("Directory is not ARCKER initialized.")
       return nil
     end
   end
