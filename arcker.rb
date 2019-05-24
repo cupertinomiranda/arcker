@@ -396,6 +396,7 @@ STR_END
   def edit
     if(change)
       depends_on(true)
+      trash(false)
       ARCKER.instance.save
     else
       error "No change made to task code. Task was not edited."
@@ -456,6 +457,7 @@ class Config
     @@current = self.new("_", config_content)
   end
   def self.current
+    error("You should first create a config.") if @@current.nil?
     @@current
   end
 
