@@ -483,7 +483,7 @@ class Config
   def vars()
     ret = []
     @content.split("\n").each do |line|
-      if(line =~ /([A-Za-z][A-Za-z0-9_]+)=[^\n;]+/)
+      if(line =~ /([A-Za-z][A-Za-z0-9_]+)=[^\n;]*/)
 	ret.push($1)
       end
     end
