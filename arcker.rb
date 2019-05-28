@@ -149,7 +149,7 @@ module JSONCollector
     end
 
     def elements
-      @elements
+      @elements || []
     end
 
     def to_json
@@ -257,7 +257,7 @@ class Source
 
   def download()
     if(!File.exists?(central_dir))
-      Sys.cmd("mkdir -p #{central_dir} && git clone --bare #{@repo} #{central_dir}")
+      Sys.cmd("mkdir -p #{central_dir} && git clone --mirror #{@repo} #{central_dir}")
     end
     if(!File.exists?(local_dir))
       cmd("mkdir -p #{local_dir}")
@@ -616,18 +616,25 @@ class ARCKER
 
   def self.setup()
     if(!File.exists?(ConfigPath))
-      Sys.cmd("git clone --bare #{MainREPO} #{ConfigPath}")
+      Sys.cmd("git clone --mirror #{MainREPO} #{ConfigPath}")
     end
   end
 
   def self.update
-    Sys.cmd("cd #{ConfigPath} && git fetch && git pull")
+    Sys.cmd("cd #{ConfigPath} && git fetch")
+    Sys.cmd("cd #{LocalPath} && git fetch")
+    #Sys.cmd("cd #{ConfigPath} && git fetch #{MainREPO}")
+    #Sys.cmd("cd #{LocalPath} && git fetch #{MainREPO}")
   end
 
   def self.list_repos
     update
-    ret =  Sys.cmd("cd #{ConfigPath} && git branch")
-    return ret.split("\n").select { |a| a =~ /^[* ]+repo_/ }.map { |a| a.gsub(/^[* ]+repo_/, "") }
+    ret =  Sys.cmd("cd #{ConfigPath} && git ls-remote")
+    puts ret
+    repo_lines = ret.split("\n").select { |a| a =~ /^[^ \t]+[ \t]refs\/heads\/repo_/ }
+    repos = repo_lines.map { |a| a =~ /repo_([^\n]+)/; $1 }
+    return repos
+    #return ret.split("\n").select { |a| a =~ /^[* ]+repo_/ }.map { |a| a.gsub(/^[* ]+repo_/, "") }
   end
 
   def self.create_repo(name, origin = "origin/master")
@@ -659,8 +666,12 @@ class ARCKER
   end
   def push(remote = "origin")
     commit()
+    #ret = Sys.system_cmd("cd #{LocalPath} && git push --repo #{MainREPO} -u #{remote} #{repo_name}")
+    #if(ret != 0)
+    #  Sys.cmd("cd #{LocalPath} && git push --repo #{MainREPOHTTPS} -u #{remote} #{repo_name}")
+    #end
     Sys.cmd("cd #{LocalPath} && git push -u #{remote} #{repo_name}")
-    Sys.cmd("cd #{ConfigPath} && git push -u #{remote} #{repo_name}")
+    #Sys.cmd("cd #{ConfigPath} && git push -u #{remote} #{repo_name}")
     ARCKER.update()
   end
 end
