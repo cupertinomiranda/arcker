@@ -6,6 +6,7 @@ LocalConfig = "#{PWD}/.arcker/config.json"
 LocalSources = "#{PWD}/sources"
 
 MainREPO = "git@github.com:cupertinomiranda/arcker_core.git"
+MainREPOHTTPS = "https://github.com/cupertinomiranda/arcker_core.git"
 ConfigPath = "#{ENV['HOME']}/.arcker"
 GITBareRepo = "#{ENV['HOME']}/.arcker_lib/"
 EDITOR = ENV["EDITOR"] || "vim"
