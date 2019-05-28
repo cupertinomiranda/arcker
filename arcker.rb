@@ -673,7 +673,7 @@ class ARCKER
     #  Sys.cmd("cd #{LocalPath} && git push --repo #{MainREPOHTTPS} -u #{remote} #{repo_name}")
     #end
     Sys.cmd("cd #{LocalPath} && git push -u #{remote} #{repo_name}")
-    Sys.cmd("cd #{ConfigPath} && git push -u #{remote} #{repo_name}")
+    Sys.cmd("cd #{ConfigPath} && git push")
     ARCKER.update()
   end
 end
