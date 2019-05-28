@@ -616,7 +616,8 @@ class ARCKER
 
   def self.setup()
     if(!File.exists?(ConfigPath))
-      Sys.cmd("git clone --mirror #{MainREPO} #{ConfigPath}")
+      ret = Sys.system_cmd("git clone --mirror #{MainREPO} #{ConfigPath}")
+      Sys.system_cmd("git clone --mirror #{MainREPOHTTPS} #{ConfigPath}") if(ret != 0)
     end
   end
 
