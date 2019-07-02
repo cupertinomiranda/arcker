@@ -7,8 +7,9 @@ LocalSources = "#{PWD}/sources"
 
 MainREPO = "git@github.com:cupertinomiranda/arcker_core.git"
 MainREPOHTTPS = "https://github.com/cupertinomiranda/arcker_core.git"
-ConfigPath = "#{ENV['HOME']}/.arcker"
-GITBareRepo = "#{ENV['HOME']}/.arcker_lib/"
+ArckerConfigDir = "#{ENV['HOME']}/.arcker"
+ConfigPath = "#{ArckerConfigDir}/config"
+GITBareRepo = "#{ArckerConfigDir}/lib"
 EDITOR = ENV["EDITOR"] || "vim"
 
 class OptionParser
@@ -616,9 +617,10 @@ class ARCKER
 # REPO related code
 
   def self.setup()
+    Sys.system_cmd("mkdir -p #{ArckerConfigDir}")
     if(!File.exists?(ConfigPath))
       ret = Sys.system_cmd("git clone --mirror #{MainREPO} #{ConfigPath}")
-      Sys.system_cmd("git clone --mirror #{MainREPOHTTPS} #{ConfigPath}") if(ret != 0)
+      Sys.system_cmd("git clone --mirror #{MainREPOHTTPS} #{ConfigPath}") if(ret != true)
     end
   end
 

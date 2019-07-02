@@ -9,7 +9,7 @@
 3. Setup arcker ...
     #> arcker setup
 
-  This will git clone --bare the arcker_core repo to ${HOME}/.arcker
+  This will git clone --mirror the arcker_core repo to ${HOME}/.arcker
 
 ARCKER is setup on your system.
 
