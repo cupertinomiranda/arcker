@@ -626,7 +626,16 @@ class ARCKER
 
   def self.update
     Sys.cmd("cd #{CorePath} && git fetch")
-    Sys.cmd("cd #{LocalPath} && git fetch")
+    # if "update" is called in these orders:
+    # > arcker setup
+    # > arcker update
+    # or
+    # > arkcer setup
+    # > arcker plumber repo create ...
+    # the LocalPath does not exist yet
+    if (File.exists?(LocalPath))
+      Sys.cmd("cd #{LocalPath} && git fetch")
+    end
   end
 
   def self.list_repos
