@@ -7,9 +7,9 @@ LocalSources = "#{PWD}/sources"
 
 MainREPO = "git@github.com:cupertinomiranda/arcker_core.git"
 MainREPOHTTPS = "https://github.com/cupertinomiranda/arcker_core.git"
-ArckerConfigDir = "#{ENV['HOME']}/.arcker"
-ConfigPath = "#{ArckerConfigDir}/config"
-GITBareRepo = "#{ArckerConfigDir}/lib"
+ConfigDir = "#{ENV['HOME']}/.arcker"
+CorePath = "#{ConfigDir}/core"
+GITBareRepo = "#{ConfigDir}/lib"
 EDITOR = ENV["EDITOR"] || "vim"
 
 class OptionParser
@@ -617,23 +617,23 @@ class ARCKER
 # REPO related code
 
   def self.setup()
-    Sys.system_cmd("mkdir -p #{ArckerConfigDir}")
-    if(!File.exists?(ConfigPath))
-      ret = Sys.system_cmd("git clone --mirror #{MainREPO} #{ConfigPath}")
-      Sys.system_cmd("git clone --mirror #{MainREPOHTTPS} #{ConfigPath}") if(ret != true)
+    Sys.system_cmd("mkdir -p #{ConfigDir}")
+    if(!File.exists?(CorePath))
+      ret = Sys.system_cmd("git clone --mirror #{MainREPO} #{CorePath}")
+      Sys.system_cmd("git clone --mirror #{MainREPOHTTPS} #{CorePath}") if(ret != true)
     end
   end
 
   def self.update
-    Sys.cmd("cd #{ConfigPath} && git fetch")
+    Sys.cmd("cd #{CorePath} && git fetch")
     Sys.cmd("cd #{LocalPath} && git fetch")
-    #Sys.cmd("cd #{ConfigPath} && git fetch #{MainREPO}")
+    #Sys.cmd("cd #{CorePath} && git fetch #{MainREPO}")
     #Sys.cmd("cd #{LocalPath} && git fetch #{MainREPO}")
   end
 
   def self.list_repos
     update
-    ret =  Sys.cmd("cd #{ConfigPath} && git ls-remote")
+    ret =  Sys.cmd("cd #{CorePath} && git ls-remote")
     puts ret
     repo_lines = ret.split("\n").select { |a| a =~ /^[^ \t]+[ \t]refs\/heads\/repo_/ }
     repos = repo_lines.map { |a| a =~ /repo_([^\n]+)/; $1 }
@@ -648,7 +648,7 @@ class ARCKER
     elsif(list_repos.index(name) != nil)
       error("Repo with same name already exists.")
     else
-      Sys.cmd("git clone #{ConfigPath} #{LocalPath} && cd #{LocalPath} && git checkout -b #{repo_name} #{origin}")
+      Sys.cmd("git clone #{CorePath} #{LocalPath} && cd #{LocalPath} && git checkout -b #{repo_name} #{origin}")
       arcker = ARCKER.new(LocalConfig)
       arcker.instance_eval { puts @config.inspect; @config["name"] = name; File.write(LocalConfig, JSON.pretty_generate(@config)) }
     end
@@ -659,7 +659,7 @@ class ARCKER
     if(File.exists?(LocalPath))
       error("Directory is already assign to ARCKER repo.")
     else
-      Sys.cmd("git clone #{ConfigPath} #{LocalPath} && cd #{LocalPath} && git checkout #{repo_name}")
+      Sys.cmd("git clone #{CorePath} #{LocalPath} && cd #{LocalPath} && git checkout #{repo_name}")
       arcker = ARCKER.new(LocalConfig)
       Source.get_sources
     end
@@ -675,7 +675,7 @@ class ARCKER
     #  Sys.cmd("cd #{LocalPath} && git push --repo #{MainREPOHTTPS} -u #{remote} #{repo_name}")
     #end
     Sys.cmd("cd #{LocalPath} && git push -u #{remote} #{repo_name}")
-    Sys.cmd("cd #{ConfigPath} && git push")
+    Sys.cmd("cd #{CorePath} && git push")
     ARCKER.update()
   end
 end
