@@ -627,8 +627,6 @@ class ARCKER
   def self.update
     Sys.cmd("cd #{CorePath} && git fetch")
     Sys.cmd("cd #{LocalPath} && git fetch")
-    #Sys.cmd("cd #{CorePath} && git fetch #{MainREPO}")
-    #Sys.cmd("cd #{LocalPath} && git fetch #{MainREPO}")
   end
 
   def self.list_repos
@@ -638,7 +636,6 @@ class ARCKER
     repo_lines = ret.split("\n").select { |a| a =~ /^[^ \t]+[ \t]refs\/heads\/repo_/ }
     repos = repo_lines.map { |a| a =~ /repo_([^\n]+)/; $1 }
     return repos
-    #return ret.split("\n").select { |a| a =~ /^[* ]+repo_/ }.map { |a| a.gsub(/^[* ]+repo_/, "") }
   end
 
   def self.create_repo(name, origin = "origin/master")
@@ -670,10 +667,6 @@ class ARCKER
   end
   def push(remote = "origin")
     commit()
-    #ret = Sys.system_cmd("cd #{LocalPath} && git push --repo #{MainREPO} -u #{remote} #{repo_name}")
-    #if(ret != 0)
-    #  Sys.cmd("cd #{LocalPath} && git push --repo #{MainREPOHTTPS} -u #{remote} #{repo_name}")
-    #end
     Sys.cmd("cd #{LocalPath} && git push -u #{remote} #{repo_name}")
     Sys.cmd("cd #{CorePath} && git push")
     ARCKER.update()
