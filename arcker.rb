@@ -86,15 +86,33 @@ class OptionParser
   end
 end
 
+class Docker
+  @@commands = []
+  @@current_dir = "/arcker"
+
+  def self.append_command(cmd)
+    cmds = [cmd] if(cmd.kind_of?(String))
+    cmds.each do |cmd|
+    end
+  end
+end
+
 module Sys
+  @@in_dockerbuild_command = false
+
   def _parse_cmd(command)
     cmd = ""
-    if(command.kind_of?(String))
-      cmd = "#{command}"
-    elsif(command.kind_of?(Array))
-      cmd = "#{command.join(" && ")}"
+    if(@@in_dockerbuild_command == false)
+      if(command.kind_of?(String))
+        cmd = "#{command}"
+      elsif(command.kind_of?(Array))
+        cmd = "#{command.join(" && ")}"
+      end
+      return cmd
+    else
+      Docker.append_command(command);
+      return ""
     end
-    return cmd
   end
   def cmd(command)
     cmd = _parse_cmd(command)
@@ -137,6 +155,47 @@ class GIT
     ret = system_cmd("git ls-remote #{repo}")
     return ret
   end
+  def initialize(worktree_dir)
+    @worktree_directory = worktree_dir
+  end
+  def bare_git
+    ret = nil
+    tmp = Sys.cmd("cd #{@worktree_directory}; git worktree list | head -n 1")
+    if(tmp =~ /^([^ \t]+)/)
+      return GIT.new($1)
+    end
+  end
+  def head_commit
+    puts "WORKTREE = #{@worktree_directory}"
+    tmp = Sys.cmd("cd #{@worktree_directory}; git log | head -n 1")
+    if(tmp =~ /^commit ([0-9a-f]+)/)
+      return $1
+    end
+    puts "TMP = #{tmp}"
+    return nil
+  end
+
+  def diff_to_bare
+    puts "INNNN = #{@worktree_directory}"
+    bare = bare_git
+    commit = head_commit
+    puts "BARE = #{bare}"
+    puts "COMMIT #{commit}"
+    if(bare && commit)
+      diff = Sys.cmd("cd #{@worktree_directory}; git diff #{commit} | tee")
+      return { commit: commit, diff: diff}
+    end
+    return nil
+  end
+
+  def apply_diff(diff)
+    if(diff["commit"] && diff["diff"] && diff["diff"] !~ /^$/)
+      File.write("/tmp/diff_file", diff["diff"])
+      Sys.system_cmd("cd #{@worktree_directory}; git checkout #{diff["commit"]}; patch -p1 < /tmp/diff_file")
+      Sys.system_cmd("rm -f /tmp/diff_file")
+    end
+  end
+
 end
 
 module JSONCollector
@@ -216,6 +275,10 @@ module JSONCollector
     def all
       @elements.values
     end
+
+    def hash
+      @elements
+    end
   end
 
   def with_name(name)
@@ -244,6 +307,10 @@ class Source
 
   def local_dir
     "#{LocalSources}/#{@name}"
+  end
+
+  def local_git
+    GIT.new(local_dir)
   end
 
   def validate
@@ -599,6 +666,14 @@ class ARCKER
 
 # GENERIC CODE
 
+  def config_json
+    config = @config.clone
+    config["sources"] = Source.to_h
+    config["tasks"] = Task.to_h
+    config["configs"] = Config.to_h
+    config["config"] = Config.current.content if Config.current
+    return JSON.pretty_generate(config)
+  end
   def _save_config
     @config["sources"] = Source.to_h
     @config["tasks"] = Task.to_h
@@ -612,6 +687,39 @@ class ARCKER
 
   def repo_name
     "repo_#{@config["name"]}"
+  end
+
+  def create_package(name)
+    content = { config: config_json, source_diff: {} }
+
+    Source.hash.each_pair do |name, source|
+      content[:source_diff][name] = source.local_git.diff_to_bare
+    end
+
+    Sys.system_cmd("rm -rf /tmp/#{name}.arcker_package");
+    File.write("/tmp/#{name}.arcker_package", JSON.pretty_generate(content))
+    Sys.debug("Created package at /tmp/#{name}.arcker_package")
+  end
+
+  def self.init_with_package(package_file)
+    package_content = JSON.parse(File.read(package_file))
+    config = JSON.parse(package_content["config"])
+
+    if(list_repos.index(config["name"]))
+      puts "HERE1"
+      self.init(config["name"])
+    else
+      puts "HERE2"
+      self.create_repo(config["name"])
+      File.write(LocalConfig, package_content["config"])
+    end
+    arcker = ARCKER.new(LocalConfig)
+    Source.get_sources()
+
+    Source.hash.each_pair do |name, source|
+      content = package_content["source_diff"][name]
+      source.local_git.apply_diff(content)
+    end
   end
 
 # REPO related code
@@ -740,6 +848,9 @@ opt.rule("plumber source remove <name>")	{ |opts| Source.remove(opts["name"]) }
 opt.rule("plumber task create <name>")	{ |opts| Task.add(opts["name"], {}) }
 opt.rule("plumber task remove <name>")	{ |opts| Task.remove(opts["name"]) }
 opt.rule("plumber task edit <name>")	{ |opts| Task.get(opts["name"]).edit }
+
+opt.rule("plumber create package <name>") { |opts| arcker.create_package(opts["name"]) }
+opt.rule("plumber package_init <filename>") { |opts| ARCKER.init_with_package(opts["filename"]) }
 
 opt.rule("plumber push")		{ |opts| arcker.push }
 
