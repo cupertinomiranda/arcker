@@ -140,7 +140,7 @@ module Sys
 
   def edit_content(str, extension="sh")
     tmp_file = "/tmp/arcker_content.#{extension}"
-    cmd("echo -n '#{str}' | cat > #{tmp_file}")
+    File.write(tmp_file, str)
     system_cmd("#{EDITOR} #{tmp_file}")
     ret = File.read(tmp_file)
     cmd("rm -f #{tmp_file}")
@@ -491,14 +491,14 @@ STR_END
   end
 
   def _run_task(config, already_executed = [])
-    return already_executed if already_executed.index(@name) != nil
+    return if already_executed.index(@name) != nil
     if @dirty == false
       already_executed.push(@name)
-      return already_executed
+      return
     end
 
     depends_on.each do |depend|
-      already_executed = depend._run_task(config, already_executed)
+      depend._run_task(config, already_executed)
     end
 
     File.write(".run.sh", "#{config}\n. ./.current_task.sh")
@@ -508,8 +508,8 @@ STR_END
     @dirty = false if(ret == true && persistent?)
     already_executed.push(@name)
     raise("Task #{name} failed to execute.") if (ret == false)
-    return already_executed
   end
+
   def run_task(edit_config = false)
     config = Config.current(true).content
     ndv = Config.current.non_defined_vars
@@ -522,6 +522,32 @@ STR_END
     end
     ARCKER.instance.save
   end
+
+  def get_script(config = Config.current(true).content, already_executed = [])
+    return "" if already_executed.index(@name) != nil
+    puts "HERE1"
+
+    already_executed.push(@name)
+
+    ret = ""
+    depends_on.each do |depend|
+      ret = depend.gen_script(already_executed)
+    end
+
+    File.write(".run.sh", "#{config}\nsh -v -n ./.current_task.sh")
+    File.write(".current_task.sh", @code)
+    debug("Generating code for task #{name}.")
+    Sys.system_cmd("chmod +x .run.sh && chmod +x .current_task.sh")
+    ret += "# Code for task #{@name}\n"
+    ret += Sys.cmd("bash -n ./.run.sh")
+    puts ret
+    #Sys.system_cmd("rm -f .current_task.sh .run.sh")
+    already_executed.push(@name)
+
+    return ret
+  end
+
+
 end
 
 class Config
@@ -851,6 +877,7 @@ opt.rule("plumber task edit <name>")	{ |opts| Task.get(opts["name"]).edit }
 
 opt.rule("plumber create package <name>") { |opts| arcker.create_package(opts["name"]) }
 opt.rule("plumber package_init <filename>") { |opts| ARCKER.init_with_package(opts["filename"]) }
+opt.rule("script for <task_name> <script_file>")  { |opts| File.write(opts["script_file"], Task.get(opts["task_name"]).get_script()) }
 
 opt.rule("plumber push")		{ |opts| arcker.push }
 
