@@ -768,7 +768,7 @@ class ARCKER
     # > arcker plumber repo create ...
     # the LocalPath does not exist yet
     if (File.exists?(LocalPath))
-      Sys.cmd("cd #{LocalPath} && git fetch")
+      Sys.cmd("cd #{LocalPath} && git fetch #{MainREPO}")
     end
   end
 
